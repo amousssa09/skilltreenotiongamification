@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estadísticas RPG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a1a;
+            color: #fff;
+            font-size: 12px;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+
+        .main-panel {
+            width: 600px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #1a1a3a, #2a2a5a);
+            border: 3px solid #4a90e2;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #2a2a5a, #3a3a7a);
+            padding: 8px 15px;
+            border-bottom: 2px solid #4a90e2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            color: #4a90e2;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .manage-btn {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            border: 1px solid #2a5a9a;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .manage-btn:hover {
+            background: linear-gradient(135deg, #357abd, #2e6da4);
+        }
+
+        .stats-container {
+            padding: 15px;
+        }
+
+        .stats-section {
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #444;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stats-column {
+            background: rgba(74, 144, 226, 0.1);
+            border: 1px solid #4a90e2;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .column-title {
+            color: #4a90e2;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-name {
+            color: #fff;
+            flex: 1;
+        }
+
+        .stat-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .stat-btn {
+            background: #333;
+            border: 1px solid #555;
+            color: #fff;
+            width: 20px;
+            height: 16px;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-btn:hover {
+            background: #4a90e2;
+        }
+
+        .stat-btn.plus {
+            background: linear-gradient(135deg, #28a745, #218838);
+        }
+
+        .stat-btn.minus {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .fullscreen-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0a1a, #1a1a3a);
+            z-index: 1000;
+            display: none;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .menu-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #1a1a3a, #2a2a5a);
+            border: 3px solid #4a90e2;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(74, 144, 226, 0.5);
+        }
+
+        .menu-header {
+            background: linear-gradient(135deg, #2a2a5a, #3a3a7a);
+            padding: 15px 20px;
+            border-bottom: 2px solid #4a90e2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-title {
+            color: #4a90e2;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .menu-content {
+            padding: 20px;
+        }
+
+        .form-section {
+            background: rgba(74, 144, 226, 0.1);
+            border: 1px solid #4a90e2;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            color: #ffd700;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            color: #4a90e2;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 8px;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #fff;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #28a745, #218838);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+        }
+
+        .stats-list {
+            background: rgba(74, 144, 226, 0.1);
+            border: 1px solid #4a90e2;
+            border-radius: 4px;
+            padding: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-item-name {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-item-category {
+            color: #4a90e2;
+            font-size: 11px;
+        }
+
+        .stat-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+        }
+
+        /* Efectos pixel art */
+        .pixel-border {
+            box-shadow: 
+                inset 2px 2px 0 rgba(255,255,255,0.1),
+                inset -2px -2px 0 rgba(0,0,0,0.3);
+        }
+
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(74, 144, 226, 0.3); }
+            to { box-shadow: 0 0 30px rgba(74, 144, 226, 0.6); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Panel Principal -->
+    <div class="main-panel glow-effect">
+        <div class="panel-header">
+            <div class="panel-title">📊 Point Allotment</div>
+            <button class="manage-btn" onclick="openFullscreenMenu()">⚙️ Gestionar</button>
+        </div>
+        
+        <div class="stats-container">
+            <!-- Estadísticas por defecto si no hay ninguna -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stats-column pixel-border">
+                    <div class="column-title">Atributos</div>
+                    <div id="attributesStats">
+                        <!-- Las estadísticas de atributos aparecerán aquí -->
+                    </div>
+                </div>
+                
+                <div class="stats-column pixel-border">
+                    <div class="column-title">Elementos</div>
+                    <div id="elementsStats">
+                        <!-- Las estadísticas de elementos aparecerán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menú en Pantalla Completa -->
+    <div class="fullscreen-menu" id="fullscreenMenu">
+        <div class="menu-container">
+            <div class="menu-header">
+                <div class="menu-title">⚙️ Gestión de Estadísticas</div>
+                <button class="close-btn" onclick="closeFullscreenMenu()">✕ Salir</button>
+            </div>
+            
+            <div class="menu-content">
+                <!-- Formulario para añadir/editar estadística -->
+                <div class="form-section">
+                    <div class="form-title" id="formTitle">➕ Añadir Nueva Estadística</div>
+                    <form id="statForm">
+                        <div class="form-group">
+                            <label class="form-label">Nombre:</label>
+                            <input type="text" class="form-input" id="statName" placeholder="Ej: Fuerza, Fuego, Inteligencia..." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Categoría:</label>
+                            <select class="form-select" id="statCategory" required>
+                                <option value="">Seleccionar categoría...</option>
+                                <option value="attributes">Atributos</option>
+                                <option value="elements">Elementos</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Valor Inicial:</label>
+                            <input type="number" class="form-input" id="statValue" value="10" min="0" max="999" required>
+                        </div>
+                        
+                        <div class="form-buttons">
+                            <button type="submit" class="btn btn-primary" id="submitBtn">Añadir Estadística</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Limpiar</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Lista de estadísticas existentes -->
+                <div class="stats-list">
+                    <div class="form-title">📋 Estadísticas Existentes</div>
+                    <div id="existingStats">
+                        <!-- Las estadísticas existentes aparecerán aquí -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos del juego
+        let gameData = {
+            attributes: [],
+            elements: []
+        };
+
+        let editingStatId = null;
+
+        // Cargar datos
+        function loadGameData() {
+            const saved = localStorage.getItem('rpgStatsData');
+            if (saved) {
+                gameData = JSON.parse(saved);
+            } else {
+                // Datos por defecto
+                gameData = {
+                    attributes: [
+                        { id: 1, name: 'Fuerza', value: 12 },
+                        { id: 2, name: 'Vitalidad', value: 100 },
+                        { id: 3, name: 'Destreza', value: 15 },
+                        { id: 4, name: 'Inteligencia', value: 90 },
+                        { id: 5, name: 'Mente', value: 90 },
+                        { id: 6, name: 'Piedad', value: 133 }
+                    ],
+                    elements: [
+                        { id: 7, name: 'Fuego', value: 20 },
+                        { id: 8, name: 'Agua', value: 115 },
+                        { id: 9, name: 'Rayo', value: 16 },
+                        { id: 10, name: 'Viento', value: 16 },
+                        { id: 11, name: 'Tierra', value: 115 },
+                        { id: 12, name: 'Hielo', value: 134 }
+                    ]
+                };
+                saveGameData();
+            }
+            updateStatsDisplay();
+        }
+
+        // Guardar datos
+        function saveGameData() {
+            localStorage.setItem('rpgStatsData', JSON.stringify(gameData));
+        }
+
+        // Actualizar visualización de estadísticas
+        function updateStatsDisplay() {
+            // Actualizar Atributos
+            const attributesContainer = document.getElementById('attributesStats');
+            attributesContainer.innerHTML = '';
+            
+            gameData.attributes.forEach(stat => {
+                attributesContainer.innerHTML += `
+                    <div class="stat-row">
+                        <span class="stat-name">${stat.name}</span>
+                        <div class="stat-controls">
+                            <button class="stat-btn minus" onclick="modifyStat('attributes', ${stat.id}, -1)">-</button>
+                            <span class="stat-value">${stat.value}</span>
+                            <button class="stat-btn plus" onclick="modifyStat('attributes', ${stat.id}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Actualizar Elementos
+            const elementsContainer = document.getElementById('elementsStats');
+            elementsContainer.innerHTML = '';
+            
+            gameData.elements.forEach(stat => {
+                elementsContainer.innerHTML += `
+                    <div class="stat-row">
+                        <span class="stat-name">${stat.name}</span>
+                        <div class="stat-controls">
+                            <button class="stat-btn minus" onclick="modifyStat('elements', ${stat.id}, -1)">-</button>
+                            <span class="stat-value">${stat.value}</span>
+                            <button class="stat-btn plus" onclick="modifyStat('elements', ${stat.id}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            updateExistingStatsList();
+        }
+
+        // Modificar valor de estadística
+        function modifyStat(category, id, change) {
+            const stat = gameData[category].find(s => s.id === id);
+            if (stat) {
+                stat.value = Math.max(0, Math.min(999, stat.value + change));
+                saveGameData();
+                updateStatsDisplay();
+            }
+        }
+
+        // Abrir menú pantalla completa
+        function openFullscreenMenu() {
+            document.getElementById('fullscreenMenu').style.display = 'block';
+            updateExistingStatsList();
+        }
+
+        // Cerrar menú pantalla completa
+        function closeFullscreenMenu() {
+            document.getElementById('fullscreenMenu').style.display = 'none';
+            resetForm();
+        }
+
+        // Actualizar lista de estadísticas existentes
+        function updateExistingStatsList() {
+            const container = document.getElementById('existingStats');
+            container.innerHTML = '';
+
+            const allStats = [
+                ...gameData.attributes.map(s => ({...s, category: 'attributes', categoryName: 'Atributos'})),
+                ...gameData.elements.map(s => ({...s, category: 'elements', categoryName: 'Elementos'}))
+            ];
+
+            if (allStats.length === 0) {
+                container.innerHTML = '<div class="empty-state">No hay estadísticas creadas</div>';
+                return;
+            }
+
+            allStats.forEach(stat => {
+                container.innerHTML += `
+                    <div class="stat-item">
+                        <div class="stat-info">
+                            <div class="stat-item-name">${stat.name}</div>
+                            <div class="stat-item-category">${stat.categoryName} - Valor: ${stat.value}</div>
+                        </div>
+                        <div class="stat-actions">
+                            <button class="btn btn-edit" onclick="editStat('${stat.category}', ${stat.id})">✏️ Editar</button>
+                            <button class="btn btn-delete" onclick="deleteStat('${stat.category}', ${stat.id})">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Editar estadística
+        function editStat(category, id) {
+            const stat = gameData[category].find(s => s.id === id);
+            if (!stat) return;
+
+            editingStatId = { category, id };
+            document.getElementById('statName').value = stat.name;
+            document.getElementById('statCategory').value = category;
+            document.getElementById('statValue').value = stat.value;
+            document.getElementById('formTitle').textContent = '✏️ Editar Estadística';
+            document.getElementById('submitBtn').textContent = 'Actualizar Estadística';
+        }
+
+        // Eliminar estadística
+        function deleteStat(category, id) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta estadística?')) {
+                gameData[category] = gameData[category].filter(s => s.id !== id);
+                saveGameData();
+                updateStatsDisplay();
+            }
+        }
+
+        // Resetear formulario
+        function resetForm() {
+            document.getElementById('statForm').reset();
+            document.getElementById('statValue').value = 10;
+            editingStatId = null;
+            document.getElementById('formTitle').textContent = '➕ Añadir Nueva Estadística';
+            document.getElementById('submitBtn').textContent = 'Añadir Estadística';
+        }
+
+        // Manejar envío del formulario
+        document.getElementById('statForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('statName').value;
+            const category = document.getElementById('statCategory').value;
+            const value = parseInt(document.getElementById('statValue').value);
+
+            if (editingStatId) {
+                // Actualizar estadística existente
+                const stat = gameData[editingStatId.category].find(s => s.id === editingStatId.id);
+                if (stat) {
+                    // Si cambia de categoría
+                    if (editingStatId.category !== category) {
+                        gameData[editingStatId.category] = gameData[editingStatId.category].filter(s => s.id !== editingStatId.id);
+                        gameData[category].push({ id: stat.id, name, value });
+                    } else {
+                        stat.name = name;
+                        stat.value = value;
+                    }
+                }
+            } else {
+                // Crear nueva estadística
+                const newId = Date.now();
+                gameData[category].push({ id: newId, name, value });
+            }
+
+            saveGameData();
+            updateStatsDisplay();
+            resetForm();
+        });
+
+        // Cerrar con ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeFullscreenMenu();
+            }
+        });
+
+        // Inicializar
+        loadGameData();
+    </script>
+</body>
+</html>
