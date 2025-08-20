@@ -1,630 +1,672 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estadísticas RPG</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Courier New', monospace;
-            background: #0a0a1a;
-            color: #fff;
-            font-size: 12px;
-            image-rendering: pixelated;
-            image-rendering: -moz-crisp-edges;
-            image-rendering: crisp-edges;
-        }
-
-        .main-panel {
-            width: 600px;
-            margin: 20px auto;
-            background: linear-gradient(135deg, #1a1a3a, #2a2a5a);
-            border: 3px solid #4a90e2;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
-        }
-
-        .panel-header {
-            background: linear-gradient(135deg, #2a2a5a, #3a3a7a);
-            padding: 8px 15px;
-            border-bottom: 2px solid #4a90e2;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-title {
-            color: #4a90e2;
-            font-weight: bold;
-            font-size: 14px;
-            text-shadow: 1px 1px 0px #000;
-        }
-
-        .manage-btn {
-            background: linear-gradient(135deg, #4a90e2, #357abd);
-            border: 1px solid #2a5a9a;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 11px;
-            text-shadow: 1px 1px 0px #000;
-        }
-
-        .manage-btn:hover {
-            background: linear-gradient(135deg, #357abd, #2e6da4);
-        }
-
-        .stats-container {
-            padding: 15px;
-        }
-
-        .stats-section {
-            margin-bottom: 20px;
-        }
-
-        .section-header {
-            color: #ffd700;
-            font-weight: bold;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #444;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .stats-column {
-            background: rgba(74, 144, 226, 0.1);
-            border: 1px solid #4a90e2;
-            border-radius: 4px;
-            padding: 10px;
-        }
-
-        .column-title {
-            color: #4a90e2;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-row:last-child {
-            border-bottom: none;
-        }
-
-        .stat-name {
-            color: #fff;
-            flex: 1;
-        }
-
-        .stat-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .stat-value {
-            color: #ffd700;
-            font-weight: bold;
-            min-width: 30px;
-            text-align: right;
-        }
-
-        .stat-btn {
-            background: #333;
-            border: 1px solid #555;
-            color: #fff;
-            width: 20px;
-            height: 16px;
-            cursor: pointer;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .stat-btn:hover {
-            background: #4a90e2;
-        }
-
-        .stat-btn.plus {
-            background: linear-gradient(135deg, #28a745, #218838);
-        }
-
-        .stat-btn.minus {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-        }
-
-        .fullscreen-menu {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(135deg, #0a0a1a, #1a1a3a);
-            z-index: 1000;
-            display: none;
-            padding: 40px;
-            overflow-y: auto;
-        }
-
-        .menu-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, #1a1a3a, #2a2a5a);
-            border: 3px solid #4a90e2;
-            border-radius: 8px;
-            box-shadow: 0 0 30px rgba(74, 144, 226, 0.5);
-        }
-
-        .menu-header {
-            background: linear-gradient(135deg, #2a2a5a, #3a3a7a);
-            padding: 15px 20px;
-            border-bottom: 2px solid #4a90e2;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .menu-title {
-            color: #4a90e2;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .close-btn {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .menu-content {
-            padding: 20px;
-        }
-
-        .form-section {
-            background: rgba(74, 144, 226, 0.1);
-            border: 1px solid #4a90e2;
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-title {
-            color: #ffd700;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-label {
-            color: #4a90e2;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 8px;
-            background: #333;
-            border: 1px solid #555;
-            border-radius: 4px;
-            color: #fff;
-            font-family: inherit;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
-        }
-
-        .form-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: inherit;
-            color: white;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #28a745, #218838);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
-        }
-
-        .stats-list {
-            background: rgba(74, 144, 226, 0.1);
-            border: 1px solid #4a90e2;
-            border-radius: 4px;
-            padding: 20px;
-        }
-
-        .stat-item {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .stat-info {
-            flex: 1;
-        }
-
-        .stat-item-name {
-            color: #ffd700;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-item-category {
-            color: #4a90e2;
-            font-size: 11px;
-        }
-
-        .stat-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-edit {
-            background: linear-gradient(135deg, #4a90e2, #357abd);
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #666;
-            padding: 40px;
-        }
-
-        /* Efectos pixel art */
-        .pixel-border {
-            box-shadow: 
-                inset 2px 2px 0 rgba(255,255,255,0.1),
-                inset -2px -2px 0 rgba(0,0,0,0.3);
-        }
-
-        .glow-effect {
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { box-shadow: 0 0 20px rgba(74, 144, 226, 0.3); }
-            to { box-shadow: 0 0 30px rgba(74, 144, 226, 0.6); }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SkillTree - Free Layout Editor</title>
+<style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Consolas','Monaco','Lucida Console',monospace;background:#0a0a0a;color:#e0e0e0;min-height:100vh;overflow:hidden;}
+    /* Header */
+    .header{position:fixed;top:0;left:0;right:0;height:60px;background:linear-gradient(180deg,#1a1a1a 0%, rgba(26,26,26,0.9) 100%);border-bottom:1px solid #333;display:flex;align-items:center;justify-content:space-between;padding:0 20px;z-index:1000;}
+    .header h1{color:#ffa500;font-size:1.2rem;font-weight:bold;}
+    .stats-bar{display:flex;gap:10px;font-size:12px;align-items:center;}
+    .stat{display:flex;align-items:center;gap:5px;padding:3px 8px;background:rgba(0,0,0,0.5);border:1px solid #444;border-radius:3px;}
+    .header-buttons{display:flex;gap:8px;}
+    .small-btn{padding:6px 10px;border:1px solid #555;border-radius:4px;background:#222;color:#ffa500;cursor:pointer;font-size:11px;}
+    .small-btn:hover{background:#333;}
+    input[type="file"]{display:none;}
+    /* Sidebar */
+    .sidebar{position:fixed;left:0;top:60px;width:270px;height:calc(100vh - 60px);background:linear-gradient(180deg,#1e1e1e 0%, #151515 100%);border-right:1px solid #333;padding:16px;z-index:999;overflow-y:auto;}
+    .sidebar.collapsed{width:60px;padding:16px 8px;}
+    .sidebar-toggle{position:absolute;top:10px;right:10px;background:#333;border:none;color:#ffa500;width:25px;height:25px;border-radius:3px;cursor:pointer;font-size:12px;}
+    .pillar-item{display:flex;align-items:center;justify-content:space-between;padding:8px;margin:6px 0;background:#2a2a2a;border:1px solid #444;border-radius:4px;cursor:pointer;font-size:12px;}
+    .pillar-item.active{border-color:#ffa500;background:rgba(255,165,0,0.1);}
+    .add-pillar-form{display:flex;gap:6px;margin-top:10px;}
+    .add-pillar-form input{flex:1;padding:6px 8px;background:#333;border:1px solid #555;border-radius:3px;color:#e0e0e0;font-size:12px;}
+    .btn{padding:6px 12px;border:1px solid;border-radius:3px;cursor:pointer;font-family:inherit;font-size:11px;text-transform:uppercase;font-weight:bold;}
+    .btn-primary{background:#ffa500;border-color:#cc8400;color:#000;}
+    .btn-danger{background:#d9534f;border-color:#c9302c;color:#fff;}
+    .section-title{color:#ffa500;font-size:12px;margin-top:14px;margin-bottom:8px;}
+    /* Canvas */
+    .canvas-container{position:fixed;left:270px;top:60px;right:0;bottom:0;transition:left .3s ease;}
+    .canvas-container.full{left:60px;}
+    .skill-canvas{width:100%;height:100%;position:relative;background:
+        radial-gradient(circle at 25% 25%, rgba(40,40,80,0.25) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(80,40,40,0.25) 0%, transparent 50%),
+        linear-gradient(135deg,#0a0a0a 0%, #151515 100%);
+        cursor:default;overflow:hidden;}
+    .skill-canvas.grid::before{
+        content:"";position:absolute;inset:0;
+        background-image:linear-gradient(#3333 1px,transparent 1px),linear-gradient(90deg,#3333 1px,transparent 1px);
+        background-size:40px 40px;pointer-events:none;
+    }
+    .skill-canvas.connecting{cursor:crosshair;}
+    /* Nodes */
+    .skill-node{position:absolute;width:64px;height:64px;border-radius:50%;border:3px solid;background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent);display:flex;flex-direction:column;align-items:center;justify-content:center;user-select:none;font-size:10px;text-align:center;transition:transform .12s;z-index:10;cursor:grab;}
+    .skill-node.dragging{cursor:grabbing;transform:scale(1.06);}
+    .skill-node.locked{border-color:#555;background-color:rgba(50,50,50,0.8);color:#777;}
+    .skill-node.available{border-color:#ffa500;background-color:rgba(255,165,0,0.2);color:#ffa500;box-shadow:0 0 10px rgba(255,165,0,0.3);}
+    .skill-node.completed{border-color:#28a745;background-color:rgba(40,167,69,0.2);color:#28a745;box-shadow:0 0 10px rgba(40,167,69,0.3);}
+    .node-icon{font-size:18px;margin-bottom:4px;line-height:1;}
+    .node-icon img{width:28px;height:28px;object-fit:cover;border-radius:6px;display:block;}
+    .node-progress{font-size:9px;font-weight:bold;}
+    /* Connections */
+    .connection-line{position:absolute;height:2px;background:#555;transform-origin:left center;z-index:5;pointer-events:none;}
+    .connection-line.active{background:#ffa500;box-shadow:0 0 5px rgba(255,165,0,0.55);}
+    /* Tooltip/Modal base */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:1500;}
+    .modal{width:360px;max-width:90vw;background:#1f1f1f;border:1px solid #444;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+    .modal header{padding:10px 14px;border-bottom:1px solid #333;color:#ffa500;font-weight:bold;}
+    .modal .content{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+    .modal .row{display:flex;flex-direction:column;gap:6px;}
+    .modal label{font-size:11px;color:#ccc;text-transform:uppercase;}
+    .modal input[type="text"], .modal input[type="number"], .modal textarea{
+        padding:8px;background:#2b2b2b;border:1px solid #555;border-radius:6px;color:#eaeaea;font-size:12px;resize:vertical;
+    }
+    .modal textarea{min-height:70px}
+    .modal .actions{display:flex;gap:8px;justify-content:flex-end;padding:10px 14px;border-top:1px solid #333;}
+    .btn-secondary{background:#444;border-color:#555;color:#fff;}
+    .btn-success{background:#5cb85c;border-color:#4cae4c;color:#fff;}
+    .btn-warning{background:#f0ad4e;border-color:#eea236;color:#000;}
+    .file-btn{display:inline-block;padding:8px;border:1px dashed #666;border-radius:6px;font-size:11px;color:#aaa;cursor:pointer;text-align:center;}
+    .file-name{font-size:11px;color:#888;}
+    /* Info panel */
+    .info-panel{position:fixed;bottom:16px;left:286px;padding:8px 10px;background:rgba(30,30,30,0.9);border:1px solid #444;border-radius:6px;font-size:11px;color:#ccc;z-index:800;}
+    .info-panel.collapsed{left:76px;}
+    .legend{font-size:11px;color:#aaa;margin-top:6px;}
+</style>
 </head>
 <body>
-    <!-- Panel Principal -->
-    <div class="main-panel glow-effect">
-        <div class="panel-header">
-            <div class="panel-title">📊 Point Allotment</div>
-            <button class="manage-btn" onclick="openFullscreenMenu()">⚙️ Gestionar</button>
+    <!-- Header -->
+    <div class="header">
+        <h1>SkillTree Editor</h1>
+        <div class="stats-bar">
+            <div class="stat"><span>NIVEL:</span><span id="playerLevel">1</span></div>
+            <div class="stat"><span>XP:</span><span id="totalXP">0</span></div>
+            <div class="stat"><span>NODOS:</span><span id="totalNodes">0</span></div>
         </div>
-        
-        <div class="stats-container">
-            <!-- Estadísticas por defecto si no hay ninguna -->
-            <div class="stats-grid" id="statsGrid">
-                <div class="stats-column pixel-border">
-                    <div class="column-title">Atributos</div>
-                    <div id="attributesStats">
-                        <!-- Las estadísticas de atributos aparecerán aquí -->
+        <div class="header-buttons">
+            <button class="small-btn" id="exportBtn">Exportar progreso</button>
+            <label class="small-btn" for="importFile">Importar progreso</label>
+            <input type="file" id="importFile" accept=".json,application/json"/>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">‹</button>
+
+        <div class="section-title">PILARES</div>
+        <div id="pillarList"></div>
+
+        <div class="add-pillar-form">
+            <input type="text" id="newPillarName" placeholder="Nombre del pilar"/>
+            <button class="btn btn-primary" onclick="createPilar()">Crear</button>
+        </div>
+
+        <div class="section-title">FONDO DEL CANVAS</div>
+        <label class="file-btn" for="bgFile">Subir fondo (img)</label>
+        <input type="file" id="bgFile" accept="image/*"/>
+        <div class="legend">También puedes limpiar el fondo: <button class="small-btn" onclick="clearBackground()">Limpiar</button></div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-container" id="canvasContainer">
+        <div class="skill-canvas grid" id="skillCanvas"></div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel" id="infoPanel">
+        <div>Click en la cuadrícula: crear nodo</div>
+        <div>Arrastrar un nodo para moverlo</div>
+        <div>Click derecho en un nodo: abrir detalles</div>
+        <div>Modo CONECTAR: click dos nodos para enlazar</div>
+        <div class="legend">Consejo: Exporta tu progreso antes de limpiar el almacenamiento.</div>
+    </div>
+
+    <!-- Action controls -->
+    <div class="header-buttons" style="position:fixed;right:16px;bottom:16px;z-index:900;flex-direction:column;">
+        <button class="small-btn" id="connectMode" onclick="toggleConnectMode()">Modo: CONECTAR</button>
+        <button class="small-btn" onclick="checkDailyProgress()">Progreso rápido</button>
+    </div>
+
+    <!-- Modal creación de nodo -->
+    <div class="modal-backdrop" id="createModal">
+        <div class="modal">
+            <header>Crear nodo</header>
+            <div class="content">
+                <div class="row">
+                    <label>Nombre del nodo</label>
+                    <input type="text" id="createName" placeholder="Ej. Meditación"/>
+                </div>
+                <div class="row">
+                    <label>Descripción del nodo</label>
+                    <textarea id="createDesc" placeholder="Breve descripción..."></textarea>
+                </div>
+                <div class="row">
+                    <label>Número de días de práctica</label>
+                    <input type="number" id="createDays" min="1" max="365" value="7"/>
+                </div>
+                <div class="row">
+                    <label>Icono</label>
+                    <input type="text" id="createEmoji" placeholder="Escribe un emoji (opcional)"/>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <label class="file-btn" for="createIconFile">o subir imagen</label>
+                        <input type="file" id="createIconFile" accept="image/*"/>
+                        <span class="file-name" id="createIconName"></span>
                     </div>
                 </div>
-                
-                <div class="stats-column pixel-border">
-                    <div class="column-title">Elementos</div>
-                    <div id="elementsStats">
-                        <!-- Las estadísticas de elementos aparecerán aquí -->
-                    </div>
-                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="closeCreateModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="confirmCreateNode()">Crear</button>
             </div>
         </div>
     </div>
 
-    <!-- Menú en Pantalla Completa -->
-    <div class="fullscreen-menu" id="fullscreenMenu">
-        <div class="menu-container">
-            <div class="menu-header">
-                <div class="menu-title">⚙️ Gestión de Estadísticas</div>
-                <button class="close-btn" onclick="closeFullscreenMenu()">✕ Salir</button>
-            </div>
-            
-            <div class="menu-content">
-                <!-- Formulario para añadir/editar estadística -->
-                <div class="form-section">
-                    <div class="form-title" id="formTitle">➕ Añadir Nueva Estadística</div>
-                    <form id="statForm">
-                        <div class="form-group">
-                            <label class="form-label">Nombre:</label>
-                            <input type="text" class="form-input" id="statName" placeholder="Ej: Fuerza, Fuego, Inteligencia..." required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Categoría:</label>
-                            <select class="form-select" id="statCategory" required>
-                                <option value="">Seleccionar categoría...</option>
-                                <option value="attributes">Atributos</option>
-                                <option value="elements">Elementos</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Valor Inicial:</label>
-                            <input type="number" class="form-input" id="statValue" value="10" min="0" max="999" required>
-                        </div>
-                        
-                        <div class="form-buttons">
-                            <button type="submit" class="btn btn-primary" id="submitBtn">Añadir Estadística</button>
-                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Limpiar</button>
-                        </div>
-                    </form>
+    <!-- Modal detalles del nodo -->
+    <div class="modal-backdrop" id="nodeModal">
+        <div class="modal">
+            <header id="nodeModalTitle">Nodo</header>
+            <div class="content">
+                <div class="row">
+                    <label>Nombre del nodo</label>
+                    <input type="text" id="nodeName"/>
                 </div>
-                
-                <!-- Lista de estadísticas existentes -->
-                <div class="stats-list">
-                    <div class="form-title">📋 Estadísticas Existentes</div>
-                    <div id="existingStats">
-                        <!-- Las estadísticas existentes aparecerán aquí -->
+                <div class="row">
+                    <label>Descripción</label>
+                    <textarea id="nodeDesc"></textarea>
+                </div>
+                <div class="row">
+                    <label>Icono</label>
+                    <input type="text" id="nodeEmoji" placeholder="Emoji (opcional)"/>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <label class="file-btn" for="nodeIconFile">o subir imagen</label>
+                        <input type="file" id="nodeIconFile" accept="image/*"/>
+                        <span class="file-name" id="nodeIconName"></span>
                     </div>
                 </div>
+                <div class="row" id="completeRow">
+                    <button class="btn btn-success" id="completeTodayBtn">Marcar completado hoy</button>
+                    <div id="completeHint" style="font-size:11px;color:#aaa;"></div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-danger" id="deleteNodeBtn">Eliminar</button>
+                <button class="btn btn-secondary" onclick="closeNodeModal()">Cerrar</button>
+                <button class="btn btn-warning" onclick="saveNodeFromModal()">Guardar</button>
             </div>
         </div>
     </div>
 
-    <script>
-        // Datos del juego
-        let gameData = {
-            attributes: [],
-            elements: []
+<script>
+// =================== Estado ===================
+let skillTree = { pillars: [], currentPillar: null, totalXP: 0, level: 1, background: null };
+let editorState = { connectMode: false, connectingFrom: null, createAt: {x:0, y:0}, dragging: null };
+
+function $(id){return document.getElementById(id);}
+function generateId(){ return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+// =================== Persistencia ===================
+function loadData(){
+    try{
+        const saved = localStorage.getItem('skillTreeEditor_v2');
+        if(saved){
+            const data = JSON.parse(saved);
+            data.pillars = Array.isArray(data.pillars) ? data.pillars : [];
+            data.pillars.forEach(p=>{
+                p.nodes = Array.isArray(p.nodes) ? p.nodes : [];
+                p.connections = Array.isArray(p.connections) ? p.connections : [];
+                p.nodes.forEach(n=>{
+                    if(!Array.isArray(n.dependencies)) n.dependencies = [];
+                    if(n.completed===undefined) n.completed = false;
+                    if(n.status===undefined) n.status = 'locked';
+                    if(n.currentStreak===undefined) n.currentStreak = 0;
+                    if(!('iconType' in n)) n.iconType = 'emoji';
+                });
+            });
+            skillTree = Object.assign({totalXP:0, level:1, currentPillar:null, background:null}, data);
+        }
+    }catch(e){ console.error(e); }
+    applyBackground();
+    updateStats();
+    renderPillarList();
+    if(skillTree.currentPillar) selectPilar(skillTree.currentPillar);
+}
+function saveData(){
+    localStorage.setItem('skillTreeEditor_v2', JSON.stringify(skillTree));
+    updateStats();
+}
+
+// =================== Export/Import ===================
+$('exportBtn').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(skillTree, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'skilltree_progreso.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+});
+$('importFile').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    try{
+        const text = await file.text();
+        const obj = JSON.parse(text);
+        if(!obj || !Array.isArray(obj.pillars)) throw new Error('Formato inválido');
+        skillTree = Object.assign({totalXP:0, level:1, currentPillar:null, background:null}, obj);
+        saveData(); renderPillarList(); renderCanvas();
+    }catch(err){
+        alert('No se pudo importar el archivo: ' + err.message);
+    } finally {
+        e.target.value = '';
+    }
+});
+
+// =================== Background ===================
+$('bgFile').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const dataUrl = await fileToDataURL(file);
+    skillTree.background = dataUrl;
+    applyBackground();
+    saveData();
+    e.target.value='';
+});
+function clearBackground(){ skillTree.background=null; applyBackground(); saveData(); }
+function applyBackground(){
+    const canvas = $('skillCanvas');
+    if(skillTree.background){
+        canvas.style.backgroundImage = `
+            radial-gradient(circle at 25% 25%, rgba(40,40,80,0.25) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(80,40,40,0.25) 0%, transparent 50%),
+            url('${skillTree.background}'),
+            linear-gradient(135deg,#0a0a0a 0%, #151515 100%)`;
+        canvas.style.backgroundSize = 'auto, auto, cover, auto';
+        canvas.style.backgroundPosition = 'center, center, center, center';
+    } else {
+        canvas.style.backgroundImage = '';
+        canvas.classList.add('grid');
+    }
+}
+
+// =================== Sidebar / Pilares ===================
+function toggleSidebar(){
+    $('sidebar').classList.toggle('collapsed');
+    $('canvasContainer').classList.toggle('full');
+    $('infoPanel').classList.toggle('collapsed');
+}
+function createPilar(){
+    const name = $('newPillarName').value.trim();
+    if(!name) return;
+    const newPilar = { id: generateId(), name, nodes: [], connections: [] };
+    skillTree.pillars.push(newPilar);
+    $('newPillarName').value='';
+    saveData(); renderPillarList(); selectPilar(newPilar.id);
+}
+function selectPilar(pilarId){
+    skillTree.currentPillar = pilarId;
+    saveData(); renderPillarList(); renderCanvas();
+}
+function deletePilar(pilarId){
+    if(!confirm('¿Eliminar este pilar y todos sus nodos?')) return;
+    skillTree.pillars = skillTree.pillars.filter(p=>p.id!==pilarId);
+    if(skillTree.currentPillar===pilarId){
+        skillTree.currentPillar = skillTree.pillars[0]?.id || null;
+    }
+    saveData(); renderPillarList(); renderCanvas();
+}
+function renderPillarList(){
+    const container = $('pillarList');
+    container.innerHTML = skillTree.pillars.map(p=>`
+        <div class="pillar-item ${skillTree.currentPillar===p.id?'active':''}" onclick="selectPilar('${p.id}')">
+            <span>${p.name}</span>
+            <button class="btn btn-danger" style="padding:2px 6px" onclick="event.stopPropagation(); deletePilar('${p.id}')">×</button>
+        </div>
+    `).join('');
+}
+
+// =================== Canvas y nodos ===================
+const canvas = $('skillCanvas');
+canvas.addEventListener('click', (e)=>{
+    // Crear nodo si se hace click en el lienzo, no en un nodo
+    if(e.target !== canvas) return;
+    if(!skillTree.currentPillar) return;
+    const rect = canvas.getBoundingClientRect();
+    editorState.createAt.x = clamp(e.clientX - rect.left - 32, 0, rect.width - 64);
+    editorState.createAt.y = clamp(e.clientY - rect.top - 32, 0, rect.height - 64);
+    openCreateModal();
+});
+
+function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+function getCurrentPilar(){ return skillTree.pillars.find(p=>p.id===skillTree.currentPillar); }
+
+function renderCanvas(){
+    canvas.innerHTML='';
+    const p = getCurrentPilar();
+    if(!p) return;
+
+    // conexiones primero
+    (p.connections||[]).forEach(c=>{
+        const from = p.nodes.find(n=>n.id===c.from);
+        const to = p.nodes.find(n=>n.id===c.to);
+        if(from && to) canvas.appendChild(createConnectionLine(from,to));
+    });
+
+    // nodos
+    p.nodes.forEach(n=> canvas.appendChild(createNodeElement(n)));
+    updateStats();
+}
+
+function createConnectionLine(fromNode, toNode){
+    const line = document.createElement('div');
+    line.className = 'connection-line';
+    const dx = (toNode.x+32) - (fromNode.x+32);
+    const dy = (toNode.y+32) - (fromNode.y+32);
+    const length = Math.hypot(dx,dy);
+    const angle = Math.atan2(dy,dx) * 180/Math.PI;
+    line.style.width = length+'px';
+    line.style.left = (fromNode.x+32)+'px';
+    line.style.top = (fromNode.y+32)+'px';
+    line.style.transform = `rotate(${angle}deg)`;
+    if(fromNode.completed) line.classList.add('active');
+    return line;
+}
+
+function createNodeElement(node){
+    const el = document.createElement('div');
+    el.className = `skill-node ${node.status}`;
+    el.style.left = node.x+'px';
+    el.style.top = node.y+'px';
+
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'node-icon';
+    if(node.iconType==='image' && node.iconData){
+        const img = document.createElement('img');
+        img.src = node.iconData;
+        iconDiv.appendChild(img);
+    } else {
+        iconDiv.textContent = node.icon || '⚔️';
+    }
+
+    const prog = document.createElement('div');
+    prog.className = 'node-progress';
+    prog.textContent = `${node.currentStreak}/${node.requiredDays}`;
+
+    el.appendChild(iconDiv);
+    el.appendChild(prog);
+
+    // click para conexiones
+    el.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        if(editorState.connectMode){
+            handleNodeConnection(node);
+        }
+    });
+    // abrir detalles con click derecho
+    el.addEventListener('contextmenu', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openNodeModal(node);
+    });
+
+    // ----- Drag & Drop -----
+    el.addEventListener('mousedown', (e)=>{
+        if(e.button!==0) return; // solo click izquierdo para arrastrar
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        editorState.dragging = {
+            nodeId: node.id,
+            offsetX: e.clientX - (rect.left + node.x),
+            offsetY: e.clientY - (rect.top + node.y),
+            element: el
         };
+        el.classList.add('dragging');
+        document.addEventListener('mousemove', onMouseMoveDrag);
+        document.addEventListener('mouseup', onMouseUpDrag, { once: true });
+    });
 
-        let editingStatId = null;
+    return el;
+}
 
-        // Cargar datos
-        function loadGameData() {
-            const saved = localStorage.getItem('rpgStatsData');
-            if (saved) {
-                gameData = JSON.parse(saved);
-            } else {
-                // Datos por defecto
-                gameData = {
-                    attributes: [
-                        { id: 1, name: 'Fuerza', value: 12 },
-                        { id: 2, name: 'Vitalidad', value: 100 },
-                        { id: 3, name: 'Destreza', value: 15 },
-                        { id: 4, name: 'Inteligencia', value: 90 },
-                        { id: 5, name: 'Mente', value: 90 },
-                        { id: 6, name: 'Piedad', value: 133 }
-                    ],
-                    elements: [
-                        { id: 7, name: 'Fuego', value: 20 },
-                        { id: 8, name: 'Agua', value: 115 },
-                        { id: 9, name: 'Rayo', value: 16 },
-                        { id: 10, name: 'Viento', value: 16 },
-                        { id: 11, name: 'Tierra', value: 115 },
-                        { id: 12, name: 'Hielo', value: 134 }
-                    ]
-                };
-                saveGameData();
+function onMouseMoveDrag(e){
+    const p = getCurrentPilar();
+    if(!editorState.dragging || !p) return;
+    const rect = canvas.getBoundingClientRect();
+    const n = p.nodes.find(n=>n.id===editorState.dragging.nodeId);
+    if(!n) return;
+    n.x = clamp(e.clientX - rect.left - editorState.dragging.offsetX, 0, rect.width - 64);
+    n.y = clamp(e.clientY - rect.top - editorState.dragging.offsetY, 0, rect.height - 64);
+    // mover elemento sin re-crear
+    editorState.dragging.element.style.left = n.x+'px';
+    editorState.dragging.element.style.top = n.y+'px';
+    // re-dibujar líneas: más simple volver a dibujar todas
+    redrawConnectionsOnly();
+}
+function onMouseUpDrag(){
+    const p = getCurrentPilar();
+    if(editorState.dragging && p){
+        const el = editorState.dragging.element;
+        el.classList.remove('dragging');
+        saveData();
+    }
+    editorState.dragging = null;
+    document.removeEventListener('mousemove', onMouseMoveDrag);
+}
+function redrawConnectionsOnly(){
+    // eliminar todas las líneas y volver a crearlas
+    const lines = Array.from(canvas.querySelectorAll('.connection-line'));
+    lines.forEach(l=>l.remove());
+    const p = getCurrentPilar();
+    if(!p) return;
+    (p.connections||[]).forEach(c=>{
+        const from = p.nodes.find(n=>n.id===c.from);
+        const to = p.nodes.find(n=>n.id===c.to);
+        if(from && to) canvas.appendChild(createConnectionLine(from,to));
+    });
+}
+
+// =================== Conexiones ===================
+function toggleConnectMode(){
+    editorState.connectMode = !editorState.connectMode;
+    $('connectMode').textContent = editorState.connectMode ? 'Conectando…' : 'Modo: CONECTAR';
+    canvas.classList.toggle('connecting', editorState.connectMode);
+    editorState.connectingFrom = null;
+}
+
+function handleNodeConnection(node){
+    const p = getCurrentPilar();
+    if(!p) return;
+    if(!editorState.connectingFrom){
+        editorState.connectingFrom = node;
+        return;
+    }
+    if(editorState.connectingFrom.id === node.id){
+        editorState.connectingFrom = null;
+        return;
+    }
+    p.connections = p.connections || [];
+    const exists = p.connections.find(c=>c.from===editorState.connectingFrom.id && c.to===node.id);
+    if(!exists){
+        p.connections.push({ from: editorState.connectingFrom.id, to: node.id });
+        // añadir dependencia al destino y bloquear si el origen no está completado
+        if(!node.dependencies.includes(editorState.connectingFrom.id)){
+            node.dependencies.push(editorState.connectingFrom.id);
+        }
+        const allDepsDone = node.dependencies.every(depId => p.nodes.find(x=>x.id===depId)?.completed);
+        node.status = allDepsDone ? 'available' : 'locked';
+    }
+    editorState.connectingFrom = null;
+    saveData(); renderCanvas();
+}
+
+// =================== Crear nodo (modal) ===================
+function openCreateModal(){
+    $('createName').value='';
+    $('createDesc').value='';
+    $('createDays').value='7';
+    $('createEmoji').value='';
+    $('createIconFile').value='';
+    $('createIconName').textContent='';
+    $('createModal').style.display='flex';
+}
+function closeCreateModal(){ $('createModal').style.display='none'; }
+
+$('createIconFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    $('createIconName').textContent = file ? file.name : '';
+});
+
+async function confirmCreateNode(){
+    const name = $('createName').value.trim() || 'Nueva habilidad';
+    const desc = $('createDesc').value.trim() || 'Descripción';
+    const days = Math.max(1, parseInt($('createDays').value||'7',10));
+    const emoji = $('createEmoji').value.trim();
+    const iconFile = $('createIconFile').files[0];
+    let iconType = 'emoji', iconData = null, icon = emoji || '⚔️';
+    if(iconFile){
+        iconType = 'image';
+        iconData = await fileToDataURL(iconFile);
+    }
+
+    const p = getCurrentPilar();
+    if(!p) return;
+    const newNode = {
+        id: generateId(),
+        name, description: desc, icon, iconType, iconData,
+        x: editorState.createAt.x, y: editorState.createAt.y,
+        requiredDays: days, currentStreak: 0, completed: false, lastCheckDate: null,
+        status: p.nodes.length===0 ? 'available' : 'locked',
+        dependencies: []
+    };
+    p.nodes.push(newNode);
+    saveData(); renderCanvas(); closeCreateModal();
+}
+
+// =================== Detalles del nodo (modal) ===================
+let nodeInModal = null;
+function openNodeModal(node){
+    nodeInModal = node;
+    $('nodeModalTitle').textContent = node.name;
+    $('nodeName').value = node.name;
+    $('nodeDesc').value = node.description || '';
+    $('nodeEmoji').value = node.iconType==='emoji' ? (node.icon || '') : '';
+    $('nodeIconFile').value='';
+    $('nodeIconName').textContent='';
+
+    // Botón completar hoy
+    const today = new Date().toDateString();
+    const btn = $('completeTodayBtn');
+    const hint = $('completeHint');
+    btn.onclick = ()=> markNodeComplete(node);
+    if(node.lastCheckDate === today){
+        btn.disabled = true;
+        hint.textContent = 'Ya fue marcado hoy.';
+    } else {
+        btn.disabled = false;
+        hint.textContent = 'Solo puede presionarse una vez por día.';
+    }
+
+    // Eliminar
+    $('deleteNodeBtn').onclick = ()=> {
+        if(!confirm('¿Eliminar este nodo?')) return;
+        const p = getCurrentPilar();
+        p.nodes = p.nodes.filter(n=>n.id!==node.id);
+        p.connections = (p.connections||[]).filter(c=>c.from!==node.id && c.to!==node.id);
+        p.nodes.forEach(n=> n.dependencies = n.dependencies.filter(d=>d!==node.id));
+        saveData(); renderCanvas(); closeNodeModal();
+    };
+
+    $('nodeModal').style.display='flex';
+}
+function closeNodeModal(){ $('nodeModal').style.display='none'; nodeInModal=null; }
+
+$('nodeIconFile').addEventListener('change', (e)=>{
+    $('nodeIconName').textContent = e.target.files[0]?.name || '';
+});
+
+async function saveNodeFromModal(){
+    if(!nodeInModal) return;
+    nodeInModal.name = $('nodeName').value.trim() || nodeInModal.name;
+    nodeInModal.description = $('nodeDesc').value.trim();
+    const emoji = $('nodeEmoji').value.trim();
+    const file = $('nodeIconFile').files[0];
+    if(file){
+        nodeInModal.iconType = 'image';
+        nodeInModal.iconData = await fileToDataURL(file);
+    } else {
+        nodeInModal.iconType = 'emoji';
+        nodeInModal.iconData = null;
+        nodeInModal.icon = emoji || nodeInModal.icon || '⚔️';
+    }
+    saveData(); renderCanvas(); closeNodeModal();
+}
+
+// =================== Progreso ===================
+function checkDailyProgress(){
+    const p = getCurrentPilar();
+    if(!p) return;
+    const available = p.nodes.filter(n=> n.status==='available' && !n.completed);
+    if(available.length===0){ alert('No hay nodos disponibles.'); return; }
+    const list = available.map((n,i)=>`${i+1}. ${n.name} (${n.currentStreak}/${n.requiredDays})`).join('\n');
+    const sel = prompt(`Selecciona un nodo para marcar hoy:\n\n${list}\n\nNúmero:`);
+    if(!sel) return;
+    const idx = parseInt(sel,10)-1;
+    if(idx>=0 && idx<available.length) markNodeComplete(available[idx]);
+}
+
+function markNodeComplete(node){
+    const today = new Date().toDateString();
+    if(node.lastCheckDate === today){ alert('Ya se marcó hoy.'); return; }
+    const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+    if(node.lastCheckDate && node.lastCheckDate !== yesterday.toDateString()) node.currentStreak = 1;
+    else node.currentStreak += 1;
+    node.lastCheckDate = today;
+
+    if(node.currentStreak >= node.requiredDays){
+        node.completed = true; node.status='completed';
+        skillTree.totalXP += node.requiredDays*10;
+        // Desbloquear dependientes: solo cuando TODOS sus predecesores estén completados
+        const p = getCurrentPilar();
+        p.nodes.forEach(n=>{
+            if(n.dependencies.includes(node.id)){
+                const allDone = n.dependencies.every(d=> p.nodes.find(x=>x.id===d)?.completed );
+                if(allDone) n.status = 'available';
             }
-            updateStatsDisplay();
-        }
-
-        // Guardar datos
-        function saveGameData() {
-            localStorage.setItem('rpgStatsData', JSON.stringify(gameData));
-        }
-
-        // Actualizar visualización de estadísticas
-        function updateStatsDisplay() {
-            // Actualizar Atributos
-            const attributesContainer = document.getElementById('attributesStats');
-            attributesContainer.innerHTML = '';
-            
-            gameData.attributes.forEach(stat => {
-                attributesContainer.innerHTML += `
-                    <div class="stat-row">
-                        <span class="stat-name">${stat.name}</span>
-                        <div class="stat-controls">
-                            <button class="stat-btn minus" onclick="modifyStat('attributes', ${stat.id}, -1)">-</button>
-                            <span class="stat-value">${stat.value}</span>
-                            <button class="stat-btn plus" onclick="modifyStat('attributes', ${stat.id}, 1)">+</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Actualizar Elementos
-            const elementsContainer = document.getElementById('elementsStats');
-            elementsContainer.innerHTML = '';
-            
-            gameData.elements.forEach(stat => {
-                elementsContainer.innerHTML += `
-                    <div class="stat-row">
-                        <span class="stat-name">${stat.name}</span>
-                        <div class="stat-controls">
-                            <button class="stat-btn minus" onclick="modifyStat('elements', ${stat.id}, -1)">-</button>
-                            <span class="stat-value">${stat.value}</span>
-                            <button class="stat-btn plus" onclick="modifyStat('elements', ${stat.id}, 1)">+</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            updateExistingStatsList();
-        }
-
-        // Modificar valor de estadística
-        function modifyStat(category, id, change) {
-            const stat = gameData[category].find(s => s.id === id);
-            if (stat) {
-                stat.value = Math.max(0, Math.min(999, stat.value + change));
-                saveGameData();
-                updateStatsDisplay();
-            }
-        }
-
-        // Abrir menú pantalla completa
-        function openFullscreenMenu() {
-            document.getElementById('fullscreenMenu').style.display = 'block';
-            updateExistingStatsList();
-        }
-
-        // Cerrar menú pantalla completa
-        function closeFullscreenMenu() {
-            document.getElementById('fullscreenMenu').style.display = 'none';
-            resetForm();
-        }
-
-        // Actualizar lista de estadísticas existentes
-        function updateExistingStatsList() {
-            const container = document.getElementById('existingStats');
-            container.innerHTML = '';
-
-            const allStats = [
-                ...gameData.attributes.map(s => ({...s, category: 'attributes', categoryName: 'Atributos'})),
-                ...gameData.elements.map(s => ({...s, category: 'elements', categoryName: 'Elementos'}))
-            ];
-
-            if (allStats.length === 0) {
-                container.innerHTML = '<div class="empty-state">No hay estadísticas creadas</div>';
-                return;
-            }
-
-            allStats.forEach(stat => {
-                container.innerHTML += `
-                    <div class="stat-item">
-                        <div class="stat-info">
-                            <div class="stat-item-name">${stat.name}</div>
-                            <div class="stat-item-category">${stat.categoryName} - Valor: ${stat.value}</div>
-                        </div>
-                        <div class="stat-actions">
-                            <button class="btn btn-edit" onclick="editStat('${stat.category}', ${stat.id})">✏️ Editar</button>
-                            <button class="btn btn-delete" onclick="deleteStat('${stat.category}', ${stat.id})">🗑️ Eliminar</button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Editar estadística
-        function editStat(category, id) {
-            const stat = gameData[category].find(s => s.id === id);
-            if (!stat) return;
-
-            editingStatId = { category, id };
-            document.getElementById('statName').value = stat.name;
-            document.getElementById('statCategory').value = category;
-            document.getElementById('statValue').value = stat.value;
-            document.getElementById('formTitle').textContent = '✏️ Editar Estadística';
-            document.getElementById('submitBtn').textContent = 'Actualizar Estadística';
-        }
-
-        // Eliminar estadística
-        function deleteStat(category, id) {
-            if (confirm('¿Estás seguro de que quieres eliminar esta estadística?')) {
-                gameData[category] = gameData[category].filter(s => s.id !== id);
-                saveGameData();
-                updateStatsDisplay();
-            }
-        }
-
-        // Resetear formulario
-        function resetForm() {
-            document.getElementById('statForm').reset();
-            document.getElementById('statValue').value = 10;
-            editingStatId = null;
-            document.getElementById('formTitle').textContent = '➕ Añadir Nueva Estadística';
-            document.getElementById('submitBtn').textContent = 'Añadir Estadística';
-        }
-
-        // Manejar envío del formulario
-        document.getElementById('statForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('statName').value;
-            const category = document.getElementById('statCategory').value;
-            const value = parseInt(document.getElementById('statValue').value);
-
-            if (editingStatId) {
-                // Actualizar estadística existente
-                const stat = gameData[editingStatId.category].find(s => s.id === editingStatId.id);
-                if (stat) {
-                    // Si cambia de categoría
-                    if (editingStatId.category !== category) {
-                        gameData[editingStatId.category] = gameData[editingStatId.category].filter(s => s.id !== editingStatId.id);
-                        gameData[category].push({ id: stat.id, name, value });
-                    } else {
-                        stat.name = name;
-                        stat.value = value;
-                    }
-                }
-            } else {
-                // Crear nueva estadística
-                const newId = Date.now();
-                gameData[category].push({ id: newId, name, value });
-            }
-
-            saveGameData();
-            updateStatsDisplay();
-            resetForm();
         });
+        alert(`¡"${node.name}" completado! +${node.requiredDays*10} XP`);
+    } else {
+        alert(`Progreso: ${node.currentStreak}/${node.requiredDays} días`);
+    }
+    saveData(); renderCanvas();
+}
 
-        // Cerrar con ESC
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeFullscreenMenu();
-            }
-        });
+// =================== Utilidades varias ===================
+function updateStats(){
+    const totalNodes = skillTree.pillars.reduce((s,p)=> s + (p.nodes?.length||0), 0);
+    skillTree.level = Math.floor(skillTree.totalXP/100)+1;
+    $('playerLevel').textContent = skillTree.level;
+    $('totalXP').textContent = skillTree.totalXP;
+    $('totalNodes').textContent = totalNodes;
+}
 
-        // Inicializar
-        loadGameData();
-    </script>
+async function fileToDataURL(file){
+    return await new Promise((res,rej)=>{
+        const r = new FileReader();
+        r.onload = ()=> res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+    });
+}
+
+// =================== Inicio ===================
+window.addEventListener('load', ()=>{
+    loadData();
+    renderCanvas();
+});
+</script>
 </body>
 </html>
